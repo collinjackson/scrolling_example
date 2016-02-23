@@ -1,0 +1,5 @@
+name: scroll_example
+description: A simple Flutter app.
+dependencies:
+  flutter:
+    path: ../../../Users/jackson/git/flutter/packages/flutter
