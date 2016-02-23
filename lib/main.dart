@@ -21,6 +21,7 @@ class _FlutterDemoState extends State<FlutterDemo> {
   static const double _kListItemExtent = 100.0;
   static const Duration _kScrollDuration = const Duration(milliseconds: 300);
   List<String> _items = [];
+  Size _scrollableSize = null;
   GlobalKey<ScrollableState> _scrollableKey = new GlobalKey<ScrollableState>();
 
   @override
@@ -34,10 +35,16 @@ class _FlutterDemoState extends State<FlutterDemo> {
       _items.add(itemName);
       Scheduler.instance.scheduleFrameCallback((Duration _) {
         _scrollableKey.currentState?.scrollTo(
-          0.0,
+          _items.length * _kListItemExtent - _scrollableSize.height,
           duration: const Duration(milliseconds: 300)
         );
       });
+    });
+  }
+
+  void _handleSizeChanged(Size newSize) {
+    setState(() {
+      _scrollableSize = newSize;
     });
   }
 
@@ -48,18 +55,20 @@ class _FlutterDemoState extends State<FlutterDemo> {
       ),
       body: new Stack(
         children: <Widget>[
-          new ScrollableList(
-            key: _scrollableKey,
-            itemExtent: _kListItemExtent,
-            scrollAnchor: ViewportAnchor.end,
-            children: _items.map((String name) {
-              return new Card(
-                key: new ValueKey(name),
-                child: new Center(
-                  child: new Text(name)
-                )
-              );
-            })
+          new SizeObserver(
+            onSizeChanged: _handleSizeChanged,
+            child: new ScrollableList(
+              key: _scrollableKey,
+              itemExtent: _kListItemExtent,
+              children: _items.map((String name) {
+                return new Card(
+                  key: new ValueKey(name),
+                  child: new Center(
+                    child: new Text(name)
+                  )
+                );
+              })
+            )
           ),
           new Row(
             children: <Widget> [
@@ -67,7 +76,7 @@ class _FlutterDemoState extends State<FlutterDemo> {
                 key: new ValueKey("up"),
                 child: new Text("UP"),
                 onPressed: () => _scrollableKey.currentState?.scrollBy(
-                  _kListItemExtent,
+                  -_kListItemExtent,
                   duration: _kScrollDuration
                 )
               ),
@@ -75,7 +84,7 @@ class _FlutterDemoState extends State<FlutterDemo> {
                 key: new ValueKey("down"),
                 child: new Text("DOWN"),
                 onPressed: () => _scrollableKey.currentState?.scrollBy(
-                  -_kListItemExtent,
+                  _kListItemExtent,
                   duration: _kScrollDuration
                 )
               ),
